@@ -1,0 +1,19 @@
+{
+  "name": "ahj-http-helpdesk_server",
+  "version": "1.0.0",
+  "description": "Правила сдачи задания:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Turovae/ahj-http-helpdesk_server.git"
+  },
+  "author": "TurovaE",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Turovae/ahj-http-helpdesk_server/issues"
+  },
+  "homepage": "https://github.com/Turovae/ahj-http-helpdesk_server#readme"
+}
