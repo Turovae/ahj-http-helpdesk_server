@@ -4,6 +4,7 @@
   "description": "Правила сдачи задания:",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/Turovae/ahj-http-helpdesk_server/issues"
   },
-  "homepage": "https://github.com/Turovae/ahj-http-helpdesk_server#readme"
+  "homepage": "https://github.com/Turovae/ahj-http-helpdesk_server#readme",
+  "devDependencies": {
+    "eslint": "^8.37.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
+  }
 }
