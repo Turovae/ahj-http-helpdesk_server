@@ -2,13 +2,19 @@
 const http = require('http');
 
 const PORT = 7070;
-// eslint-disable-next-line no-unused-vars
-const URL = 'http://localchost';
+const URL = 'http://localhost';
 
 const server = http.createServer((req, res) => {
-  console.log(req.headers);
+  const buffer = [];
+  req.on('data', (chunk) => {
+    buffer.push(chunk);
+  });
 
-  res.end();
+  req.on('end', () => {
+    console.log(Buffer.concat(buffer).toString().split('&'));
+  });
+
+  res.end('response');
 });
 
 server.listen(PORT, (err) => {
@@ -18,5 +24,5 @@ server.listen(PORT, (err) => {
     return;
   }
 
-  console.log('Server is listent');
+  console.log(`Server is listening to ${URL}:${PORT}`);
 });
