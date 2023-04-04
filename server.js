@@ -1,28 +1,101 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
-const http = require('http');
+const Koa = require('koa');
+const Router = require('@koa/router');
+const { koaBody } = require('koa-body');
+const cors = require('@koa/cors');
+
+let { tickets } = require('./db');
+
+const Ticket = require('./Ticket').default;
 
 const PORT = 7070;
-const URL = 'http://localhost';
 
-const server = http.createServer((req, res) => {
-  const buffer = [];
-  req.on('data', (chunk) => {
-    buffer.push(chunk);
+const app = new Koa();
+const router = new Router();
+
+function isExistTicket(name) {
+  return tickets.some((ticket) => ticket.name === name);
+}
+
+function isNotExistTicket(id) {
+  return tickets.findIndex((ticket) => ticket.id === id) < 0;
+}
+
+app.use(cors({
+  origin: 'http://localhost:9000',
+}));
+app.use(koaBody({ multipart: true }));
+app.use(router.routes());
+
+router
+  .get('/tickets', (ctx, next) => {
+    ctx.response.body = tickets.map((ticket) => ({
+      id: ticket.id,
+      name: ticket.name,
+      status: ticket.status,
+      created: ticket.created,
+    }));
+    next();
+  })
+  .get('/tickets/:id', (ctx, next) => {
+    console.log(ctx.params.id);
+    const findTicket = tickets.find((ticket) => ticket.id === ctx.params.id);
+    if (findTicket) {
+      ctx.response.body = findTicket;
+      ctx.response.status = 200;
+      next();
+    }
+    ctx.response.status = 404;
+    next();
+  })
+  .post('/tickets/ticket', (ctx, next) => {
+    const { name, description } = ctx.request.body;
+
+    if (isExistTicket(name)) {
+      ctx.response.body = 'Ticket exist';
+      ctx.response.status = 409;
+      next();
+    }
+
+    const ticket = new Ticket(name, description);
+    tickets.push(ticket);
+    ctx.response.body = ticket;
+    next();
+  })
+  .put('/tickets/:id', (ctx, next) => {
+    const { id } = ctx.params;
+    if (isNotExistTicket(id)) {
+      ctx.response.body = 'Ticket is not exist';
+      ctx.response.status = 404;
+      next();
+    }
+    const { name, description } = ctx.request.body;
+
+    const findedTicket = tickets.find((ticket) => ticket.id === id);
+    findedTicket.name = name;
+    findedTicket.description = description;
+
+    ctx.response.body = findedTicket;
+    ctx.response.status = 200;
+    next();
+  })
+  .delete('/tickets/:id', (ctx, next) => {
+    const { id } = ctx.params;
+    if (isNotExistTicket(id)) {
+      ctx.response.body = 'Ticket is not exist';
+      ctx.response.status = 404;
+      next();
+    }
+
+    tickets = tickets.filter((ticket) => ticket.id !== id);
+    ctx.response.body = 'Ticket is deleted';
+    ctx.response.status = 200;
+    next();
   });
 
-  req.on('end', () => {
-    console.log(Buffer.concat(buffer).toString().split('&'));
-  });
-
-  res.end('response');
+app.on('error', (err) => {
+  console.log('server error', err);
 });
 
-server.listen(PORT, (err) => {
-  if (err) {
-    console.log(err);
-
-    return;
-  }
-
-  console.log(`Server is listening to ${URL}:${PORT}`);
-});
+app.listen(PORT);
