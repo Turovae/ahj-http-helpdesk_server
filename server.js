@@ -1,5 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
+/* eslint-disable import/no-extraneous-dependencies */
 const Koa = require('koa');
 const Router = require('@koa/router');
 const { koaBody } = require('koa-body');
@@ -44,9 +44,9 @@ router
     if (findTicket) {
       ctx.response.body = findTicket;
       ctx.response.status = 200;
-      next();
+    } else {
+      ctx.response.status = 404;
     }
-    ctx.response.status = 404;
     next();
   })
   .post('/tickets/ticket', (ctx, next) => {
@@ -55,12 +55,11 @@ router
     if (isExistTicket(name)) {
       ctx.response.body = 'Ticket exist';
       ctx.response.status = 409;
-      next();
+    } else {
+      const ticket = new Ticket(name, description);
+      tickets.push(ticket);
+      ctx.response.body = ticket;
     }
-
-    const ticket = new Ticket(name, description);
-    tickets.push(ticket);
-    ctx.response.body = ticket;
     next();
   })
   .put('/tickets/:id', (ctx, next) => {
@@ -70,11 +69,19 @@ router
       ctx.response.status = 404;
       next();
     }
-    const { name, description } = ctx.request.body;
+
+    const { name, description, status } = ctx.request.body;
 
     const findedTicket = tickets.find((ticket) => ticket.id === id);
-    findedTicket.name = name;
-    findedTicket.description = description;
+    if (name) {
+      findedTicket.name = name;
+    }
+    if (description) {
+      findedTicket.description = description;
+    }
+    if (status !== findedTicket.status) {
+      findedTicket.status = status;
+    }
 
     ctx.response.body = findedTicket;
     ctx.response.status = 200;
