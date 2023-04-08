@@ -22,7 +22,7 @@ function isNotExistTicket(id) {
 }
 
 app.use(cors({
-  origin: 'http://localhost:9000',
+  origin: 'https://localhost:9000',
 }));
 app.use(koaBody({ multipart: true }));
 app.use(router.routes());
