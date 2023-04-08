@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
 const Koa = require('koa');
 const Router = require('@koa/router');
@@ -39,7 +38,6 @@ router
     next();
   })
   .get('/tickets/:id', (ctx, next) => {
-    console.log(ctx.params.id);
     const findTicket = tickets.find((ticket) => ticket.id === ctx.params.id);
     if (findTicket) {
       ctx.response.body = findTicket;
@@ -70,7 +68,8 @@ router
       next();
     }
 
-    const { name, description, status } = ctx.request.body;
+    const { name, description } = ctx.request.body;
+    let { status } = ctx.request.body;
 
     const findedTicket = tickets.find((ticket) => ticket.id === id);
     if (name) {
@@ -78,6 +77,9 @@ router
     }
     if (description) {
       findedTicket.description = description;
+    }
+    if (status && typeof status === 'string') {
+      status = JSON.parse(status);
     }
     if (status !== findedTicket.status) {
       findedTicket.status = status;
@@ -102,6 +104,7 @@ router
   });
 
 app.on('error', (err) => {
+  // eslint-disable-next-line no-console
   console.log('server error', err);
 });
 
